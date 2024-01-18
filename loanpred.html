@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Status Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #result {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Loan availability Prediction</h1>
+        <form id="loanForm">
+
+            <label for="name">Name</label>
+            <input type="text" id="name"/>
+
+            <label for="no_of_dependents">No. of Dependents:</label>
+            <input type="number" id="no_of_dependents" placeholder="Enter the number of dependents" required>
+
+            <label for="education">Education:</label>
+            <select id="education" required>
+                <option value="0">Not Graduate</option>
+                <option value="1">Graduate</option>
+            </select>
+
+            <label for="self_employed">Self Employed:</label>
+            <select id="self_employed" required>
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <label for="incomeAnnum">Income Annum:</label>
+            <input type="number" id="incomeAnnum" name="incomeAnnum"   required>
+
+            <label for="loanAmount">Loan Amount:</label>
+            <input type="number" id="loanAmount" name="loanAmount" required>
+
+            <label for="loanTerm">Loan Term:</label>
+            <input type="number" id="loanTerm" name="loanTerm" required>
+
+            <label for="cibilScore">CIBIL Score:</label>
+            <input type="number" id="cibilScore" name="cibilScore" required>
+
+            <label for="residentialAssets">Residential Assets Value:</label>
+            <input type="number" id="residentialAssets" name="residentialAssets" required>
+
+            <label for="commercialAssets">Commercial Assets Value:</label>
+            <input type="number" id="commercialAssets" name="commercialAssets" required>
+
+            <label for="luxuryAssets">Luxury Assets Value:</label>
+            <input type="number" id="luxuryAssets" name="luxuryAssets" required>
+
+            <label for="bankAssets">Bank Assets Value:</label>
+            <input type="number" id="bankAssets" name="bankAssets" required>
+
+
+            <button type="button" onclick="predictLoanStatus()">Predict</button>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function predictLoanStatus() {
+            try {
+                // Retrieve input values
+                const name = document.getElementById('name').value;
+                const no_of_dependents = document.getElementById('no_of_dependents').value;
+                const education = document.getElementById('education').value;
+                const self_employed = document.getElementById('self_employed').value;
+                const incomeAnnum = document.getElementById('incomeAnnum').value;
+                const loanAmount = document.getElementById('loanAmount').value;
+                const loanTerm = document.getElementById('loanTerm').value;
+                const cibilScore = document.getElementById('cibilScore').value;
+                const residentialAssets = document.getElementById('residentialAssets').value;
+                const commercialAssets = document.getElementById('commercialAssets').value;
+                const luxuryAssets = document.getElementById('luxuryAssets').value;
+                const bankAssets = document.getElementById('bankAssets').value;
+
+
+                // Prepare data for the POST request
+                const data = {
+                    no_of_dependents: parseInt(no_of_dependents),
+                    education: parseInt(education),
+                    self_employed: parseInt(self_employed),
+                    income_annum: parseFloat(incomeAnnum),
+                    loan_amount: parseFloat(loanAmount),
+                    loan_term: parseFloat(loanTerm),
+                    cibil_score: parseFloat(cibilScore),
+                    residential_assets_value: parseFloat(residentialAssets),
+                    commercial_assets_value: parseFloat(commercialAssets),
+                    luxury_assets_value: parseFloat(luxuryAssets),
+                    bank_asset_value: parseFloat(bankAssets),
+                };
+
+                // Make a POST request to the FastAPI endpoint
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                // Check if the response is successful
+                if (!response.ok) {
+                    throw new Error(`Prediction failed: ${response.statusText}`);
+                }
+
+                // Parse the JSON response
+                const result = await response.json();
+
+                // Display the prediction result
+                displayResult(result);
+            } catch (error) {
+                console.error('Error:', error.message);
+            }
+        }
+
+        function displayResult(result) {
+            const resultDiv = document.getElementById('result');
+            if(result.Loan_Status_Prediction == 1)
+            {
+              resultDiv.innerHTML = `<p><b>Sorry, ${name} you can't avail Loan from our bank</b></p>`;
+            }
+            else{
+              resultDiv.innerHTML = `<p><b>Congratulations, ${name} you can Avail loan from our Bank</b></p>`
+            }
+        }
+    </script>
+</body>
+</html>
